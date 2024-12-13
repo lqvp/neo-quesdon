@@ -49,7 +49,7 @@ model profile {
   stopNotiNewQuestion   Boolean        @default(false)
   stopPostAnswer        Boolean        @default(false)
   avatarUrl             String
-  questionBoxName       String         @default("질문함")
+  questionBoxName       String         @default("質問箱")
   lastFollowRefreshed   DateTime       @default("1996-12-19T16:39:57-08:00")
   user                  user           @relation(fields: [handle], references: [handle], onDelete: Cascade)
   defaultPostVisibility PostVisibility @default(public)

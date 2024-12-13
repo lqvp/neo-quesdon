@@ -21,7 +21,7 @@ export default function SingleAnswer() {
       if (res.ok) {
         window.history.back();
       } else {
-        throw new Error(`답변을 지우는데 실패했어요! ${await res.text()}`);
+        throw new Error(`回答を削除するのに失敗しました！ ${await res.text()}`);
       }
     } catch (err) {
       alert(err);
@@ -38,27 +38,27 @@ export default function SingleAnswer() {
         <>
           <Answer value={answerBody} id={answerBody.id} ref={singleQuestionDeleteModalRef} />
           <DialogModalTwoButton
-            title={'답변 지우기'}
-            body={'답변을 지울까요...?'}
-            confirmButtonText={'확인'}
-            cancelButtonText={'취소'}
+            title={'回答を削除'}
+            body={'回答を削除しますか...?'}
+            confirmButtonText={'確認'}
+            cancelButtonText={'キャンセル'}
             ref={singleQuestionDeleteModalRef}
             onClick={() => handleDeleteAnswer(answerBody.id)}
           />
           <input type="checkbox" id={`answer_delete_modal_${answerBody.id}`} className="modal-toggle" />
           <div className="modal" role="dialog">
             <div className="modal-box">
-              <h3 className="py-4 text-2xl">답변을 지울까요...?</h3>
+              <h3 className="py-4 text-2xl">回答を削除しますか...?</h3>
               <div className="modal-action">
                 <label
                   htmlFor={`answer_delete_modal_${answerBody.id}`}
                   className="btn btn-error"
                   onClick={() => handleDeleteAnswer(answerBody.id)}
                 >
-                  확인
+                  確認
                 </label>
                 <label htmlFor={`answer_delete_modal_${answerBody.id}`} className="btn">
-                  취소
+                  キャンセル
                 </label>
               </div>
             </div>

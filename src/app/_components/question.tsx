@@ -76,7 +76,7 @@ export default function Question({
     if (detectWhiteSpaces.test(e.answer) === true) {
       setError('answer', {
         type: 'answerOnlyWhiteSpace',
-        message: '답변에 아무말 안 하시게요...?',
+        message: '回答に何も書かないんですか...?',
       });
       return;
     }
@@ -121,7 +121,7 @@ export default function Question({
     const questionId = singleQuestion.id;
     const draft = sessionStorage.getItem(`draftAnswer:${questionId}`);
     if (draft) {
-      console.debug(`질문 ${questionId} 의 답변 임시저장 복구: ${draft}`);
+      console.debug(`質問 ${questionId} の回答の下書きを復元: ${draft}`);
       setValue('answer', draft);
     }
   }, []);
@@ -134,7 +134,7 @@ export default function Question({
       const questionId = singleQuestion.id;
       if (textInput) {
         sessionStorage.setItem(`draftAnswer:${questionId}`, textInput);
-        console.debug(`질문 ${questionId} 의 답변 임시 저장됨: ${textInput}`);
+        console.debug(`質問 ${questionId} の回答が下書き保存されました: ${textInput}`);
       }
     };
     deBounce(save);
@@ -151,14 +151,14 @@ export default function Question({
           {singleQuestion.questioner ? (
             <Link href={`/main/user/${singleQuestion.questioner}`}>{singleQuestion.questioner}</Link>
           ) : (
-            '익명의 질문자'
+            '匿名の質問者'
           )}
         </div>
         <div className="chat-bubble flex items-center text-sm break-all window:text-xl desktop:text-2xl text-slate-200">
           {singleQuestion.question}
         </div>
         <div className="chat-footer opacity-50 dark:text-slate-100 dark:opacity-80">
-          {new Date(singleQuestion.questionedAt).toLocaleString('ko-KR', { hour12: false })}
+          {new Date(singleQuestion.questionedAt).toLocaleString('ja-JP', { hour12: false })}
           <span
             className="text-red-500 font-bold ml-2 cursor-pointer"
             onClick={() => {
@@ -166,7 +166,7 @@ export default function Question({
               setId(singleQuestion.id);
             }}
           >
-            삭제
+            削除
           </span>
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function Question({
               className={`textarea textarea-sm text-sm h-24 desktop:h-32 window:text-xl desktop:text-2xl bg-transparent placeholder-neutral-300 text-slate-50 ${
                 errors.answer && 'textarea-error'
               }`}
-              placeholder="답변을 입력하세요..."
+              placeholder="回答を入力してください..."
               onKeyDown={onCtrlEnter}
             />
 
@@ -195,15 +195,15 @@ export default function Question({
                     onClick={() => setValue('nsfw', !nsfwedAnswer)}
                   />
                   <input type="hidden" {...register('nsfw')} />
-                  <span className="text-sm desktop:text-xl">NSFW로 체크</span>
+                  <span className="text-sm desktop:text-xl">NSFWとしてチェック</span>
                 </div>
                 <select {...register('visibility')} className="select select-ghost select-sm dark:shadow">
                   <option className={'hidden'} value={undefined}>
                     ...
                   </option>
-                  <option value="public">공개</option>
-                  <option value="home">홈</option>
-                  <option value="followers">팔로워</option>
+                  <option value="public">公開</option>
+                  <option value="home">ホーム</option>
+                  <option value="followers">フォロワー</option>
                 </select>
               </div>
               <div className="w-full desktop:w-fit flex justify-center">
@@ -211,7 +211,7 @@ export default function Question({
                   type={'submit'}
                   className="btn btn-outline dark:border-white dark:text-slate-200 btn-sm h-10 w-16 desktop:btn-md"
                 >
-                  답변
+                  回答
                 </button>
               </div>
             </div>

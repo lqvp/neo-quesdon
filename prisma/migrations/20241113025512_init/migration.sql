@@ -20,7 +20,7 @@ CREATE TABLE "profile" (
     "stopNewQuestion" BOOLEAN NOT NULL DEFAULT false,
     "stopAnonQuestion" BOOLEAN NOT NULL DEFAULT false,
     "avatarUrl" TEXT NOT NULL,
-    "questionBoxName" TEXT NOT NULL DEFAULT '질문함',
+    "questionBoxName" TEXT NOT NULL DEFAULT '質問箱',
 
     CONSTRAINT "profile_pkey" PRIMARY KEY ("id")
 );

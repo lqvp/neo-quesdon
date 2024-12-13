@@ -33,7 +33,7 @@ export async function postAnswer(questionId: question['id'] | null, reqData: cre
   const cookieStore = await cookies();
   const jwtToken = cookieStore.get('jwtToken')?.value;
   let tokenPayload;
-  // JWT 토큰 검증
+  // JWTトークンの検証
   try {
     tokenPayload = await verifyToken(jwtToken);
   } catch {
@@ -45,7 +45,7 @@ export async function postAnswer(questionId: question['id'] | null, reqData: cre
   const typedAnswer = await validateStrict(createAnswerDto, reqData);
   const q = await prisma.question.findUniqueOrThrow({ where: { id: questionId } });
   if (q.questioneeHandle !== tokenPayload.handle) {
-    throw new Error(`This question is not for you`);
+    throw new Error(`この質問はあなた宛ではありません`);
   }
   const answeredUser = await prisma.user.findUniqueOrThrow({
     where: {
@@ -78,16 +78,16 @@ export async function postAnswer(questionId: question['id'] | null, reqData: cre
     let title;
     let text;
     if (typedAnswer.nsfwedAnswer === true) {
-      title = `⚠️ 이 질문은 NSFW한 질문이에요! #neo_quesdon`;
+      title = `⚠️ この質問はNSFWです！ #neo_quesdon`;
       if (q.questioner) {
-        text = `질문자:${q.questioner}\nQ:${q.question}\nA: ${typedAnswer.answer}\n#neo_quesdon ${answerUrl}`;
+        text = `質問者:${q.questioner}\nQ:${q.question}\nA: ${typedAnswer.answer}\n#neo_quesdon ${answerUrl}`;
       } else {
         text = `Q: ${q.question}\nA: ${typedAnswer.answer}\n#neo_quesdon ${answerUrl}`;
       }
     } else {
       title = `Q: ${q.question} #neo_quesdon`;
       if (q.questioner) {
-        text = `질문자:${q.questioner}\nA: ${typedAnswer.answer}\n#neo_quesdon ${answerUrl}`;
+        text = `質問者:${q.questioner}\nA: ${typedAnswer.answer}\n#neo_quesdon ${answerUrl}`;
       } else {
         text = `A: ${typedAnswer.answer}\n#neo_quesdon ${answerUrl}`;
       }
@@ -108,10 +108,10 @@ export async function postAnswer(questionId: question['id'] | null, reqData: cre
           break;
       }
     } catch {
-      postLogger.warn('답변 작성 실패!');
-      /// 미스키/마스토돈에 글 올리는데 실패했으면 다시 answer 삭제
+      postLogger.warn('回答の投稿に失敗しました！');
+      /// Misskey/Mastodonに投稿に失敗した場合、回答を削除
       await prisma.answer.delete({ where: { id: createdAnswer.id } });
-      throw new Error('답변 작성 실패!');
+      throw new Error('回答の投稿に失敗しました！');
     }
   }
 
@@ -132,7 +132,7 @@ export async function postAnswer(questionId: question['id'] | null, reqData: cre
     },
   });
   if (!profile) {
-    throw new Error('프로파일을 찾는데 실패');
+    throw new Error('プロフィールの取得に失敗しました');
   }
   const profileDto = profileToDto(profile, profile.user.hostName, profile.user.server.instanceType);
   pubsub_service.pub<QuestionDeletedPayload>('question-deleted-event', {
@@ -151,7 +151,7 @@ export async function postAnswer(questionId: question['id'] | null, reqData: cre
     nsfwedAnswer: createdAnswer.nsfwedAnswer,
   });
 
-  postLogger.log('Created new answer:', answerUrl);
+  postLogger.log('新しい回答が作成されました:', answerUrl);
 }
 
 async function mkMisskeyNote(
@@ -173,7 +173,7 @@ async function mkMisskeyNote(
   },
 ) {
   const NoteLogger = new Logger('mkMisskeyNote');
-  // 미스키 CW길이제한 처리
+  // Misskey CWの長さ制限処理
   if (title.length > 100) {
     title = title.substring(0, 90) + '.....';
   }
@@ -196,14 +196,14 @@ async function mkMisskeyNote(
       body: JSON.stringify(newAnswerNote),
     });
     if (res.status === 401 || res.status === 403) {
-      NoteLogger.warn('User Revoked Access token. JWT를 Revoke합니다... Detail:', await res.text());
+      NoteLogger.warn('ユーザーがアクセストークンを取り消しました。JWTを無効化します... 詳細:', await res.text());
       const prisma = GetPrismaClient.getClient();
       await prisma.user.update({ where: { handle: user.handle }, data: { jwtIndex: user.jwtIndex + 1 } });
-      throw new Error('Note Create Fail! (Token Revoked)');
+      throw new Error('ノート作成失敗！ (トークン無効化)');
     } else if (!res.ok) {
-      throw new Error(`Note Create Fail! ${await res.text()}`);
+      throw new Error(`ノート作成失敗！ ${await res.text()}`);
     } else {
-      NoteLogger.log(`Note Created! ${res.statusText}`);
+      NoteLogger.log(`ノート作成成功！ ${res.statusText}`);
     }
   } catch (err) {
     NoteLogger.warn(err);
@@ -258,17 +258,17 @@ async function mastodonToot(
       body: JSON.stringify(newAnswerToot),
     });
     if (res.status === 401 || res.status === 403) {
-      tootLogger.warn('User Revoked Access token. JWT를 Revoke합니다.. Detail:', await res.text());
+      tootLogger.warn('ユーザーがアクセストークンを取り消しました。JWTを無効化します... 詳細:', await res.text());
       const prisma = GetPrismaClient.getClient();
       await prisma.user.update({ where: { handle: user.handle }, data: { jwtIndex: user.jwtIndex + 1 } });
-      throw new Error('Toot Create Fail! (Token Revoked)');
+      throw new Error('トゥート作成失敗！ (トークン無効化)');
     } else if (!res.ok) {
-      throw new Error(`HTTP Error! status:${await res.text()}`);
+      throw new Error(`HTTPエラー！ status:${await res.text()}`);
     } else {
-      tootLogger.log(`Toot Created! ${res.statusText}`);
+      tootLogger.log(`トゥート作成成功！ ${res.statusText}`);
     }
   } catch (err) {
-    tootLogger.warn(`Toot Create Fail!`, err);
+    tootLogger.warn(`トゥート作成失敗！`, err);
     throw err;
   }
 }
@@ -282,7 +282,7 @@ export async function deleteQuestion(id: number) {
     await prisma.$transaction(async (tr) => {
       const q = await tr.question.findUniqueOrThrow({ where: { id: id } });
       if (q.questioneeHandle !== tokenPayload.handle) {
-        throw new Error(`You Can't delete this question`);
+        throw new Error(`この質問は削除できません`);
       }
       await tr.question.delete({
         where: {
@@ -299,6 +299,6 @@ export async function deleteQuestion(id: number) {
       question_numbers: question_numbers,
     });
   } catch (err) {
-    throw new Error(`JWT Token Verification Error: ${err}`);
+    throw new Error(`JWTトークンの検証エラー: ${err}`);
   }
 }

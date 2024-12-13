@@ -29,7 +29,7 @@ export default function MainBody() {
 
   return (
     <div className="w-[90%] window:w-[80%] desktop:w-[70%]">
-      <h3 className="text-3xl desktop:text-4xl mb-2">최근 올라온 답변들</h3>
+      <h3 className="text-3xl desktop:text-4xl mb-2">最近投稿された回答</h3>
       {answersContext?.answers === null ? (
         <div className="flex justify-center">
           <span className="loading loading-spinner loading-lg" />
@@ -50,7 +50,7 @@ export default function MainBody() {
                   </div>
                 ) : (
                   <div>
-                    <span className="text-3xl">🥂 끝이야 한 잔 해</span>
+                    <span className="text-3xl">🥂 終わりだよ、乾杯</span>
                   </div>
                 )}
               </div>
@@ -58,7 +58,7 @@ export default function MainBody() {
           ) : (
             <div className="flex flex-col items-center justify-center text-3xl my-2 p-2">
               <FaExclamationCircle />
-              <span>아무것도 없습니다.</span>
+              <span>何もありません。</span>
             </div>
           )}
         </div>

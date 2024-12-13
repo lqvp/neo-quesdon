@@ -17,16 +17,16 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
   });
   if (!userProfile) {
     return {
-      title: '찾을 수 없음',
-      description: '그런 유저를 찾을 수 없습니다',
+      title: '見つかりません',
+      description: 'そのようなユーザーは見つかりません',
     };
   }
 
   return {
-    title: `${userProfile.handle.match(/(?:@)(.+)(?:@)/)?.[1]} 님의 ${userProfile.questionBoxName}`,
+    title: `${userProfile.handle.match(/(?:@)(.+)(?:@)/)?.[1]} さんの ${userProfile.questionBoxName}`,
     openGraph: {
-      title: `${userProfile.handle.match(/(?:@)(.+)(?:@)/)?.[1]} 님의 ${userProfile.questionBoxName}`,
-      description: `${userProfile.handle.match(/(?:@)(.+)(?:@)/)?.[1]} 님의 ${josa(userProfile.questionBoxName, '이에요!', '예요!')}`,
+      title: `${userProfile.handle.match(/(?:@)(.+)(?:@)/)?.[1]} さんの ${userProfile.questionBoxName}`,
+      description: `${userProfile.handle.match(/(?:@)(.+)(?:@)/)?.[1]} さんの ${josa(userProfile.questionBoxName, 'です！', 'です！')}`,
       images: userProfile.avatarUrl,
     },
   };
@@ -47,7 +47,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
       {userProfile === null ? (
         <div className="w-full col-span-2 flex flex-col justify-center items-center glass text-4xl rounded-box shadow p-2">
           😶‍🌫️
-          <span>그런 사용자는 없어요!</span>
+          <span>そのようなユーザーはいません！</span>
         </div>
       ) : (
         <>

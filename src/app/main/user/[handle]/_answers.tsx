@@ -19,7 +19,7 @@ async function fetchProfile(handle: string) {
     if (profile.ok) {
       return profile.json() as unknown as userProfileDto;
     } else {
-      throw new Error(`프로필이 없습니다! ${await profile.text()}`);
+      throw new Error(`プロフィールが見つかりません！ ${await profile.text()}`);
     }
   } catch (err) {
     alert(err);
@@ -49,7 +49,7 @@ export default function UserPage() {
       if (res.ok) {
         return res.json();
       } else {
-        throw new Error(`fetch-user-answers fail! ${res.status}, ${await res.text()}`);
+        throw new Error(`fetch-user-answers に失敗しました！ ${res.status}, ${await res.text()}`);
       }
     } catch (err) {
       alert(err);
@@ -63,7 +63,7 @@ export default function UserPage() {
       body: JSON.stringify({ id: id }),
     });
     if (!res.ok) {
-      alert(`답변을 삭제하는데 실패하였습니다! ${await res.text()}`);
+      alert(`回答を削除するのに失敗しました！ ${await res.text()}`);
       return;
     }
     if (answers && count) {
@@ -134,7 +134,7 @@ export default function UserPage() {
           {answers !== null ? (
             <div className="w-full">
               <div className="flex items-center gap-2 my-2 text-2xl">
-                <span>답변</span>
+                <span>回答</span>
                 <span className="badge badge-ghost">{count}</span>
               </div>
               {answers.length > 0 ? (
@@ -151,14 +151,14 @@ export default function UserPage() {
                       </div>
                     ) : (
                       <div>
-                        <span className="text-3xl">🥂 끝이야 한 잔 해</span>
+                        <span className="text-3xl">🥂 終わりだよ、乾杯</span>
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
                 <div className="text-2xl flex gap-2 justify-center items-center border shadow rounded-box p-2 glass">
-                  <span>🍺 질문함이 맥주있어요...</span>
+                  <span>🍺 質問箱にはビールがあります...</span>
                 </div>
               )}
             </div>
@@ -170,10 +170,10 @@ export default function UserPage() {
         </div>
       )}
       <DialogModalTwoButton
-        title={'답변 지우기'}
-        body={'답변을 지울까요...?'}
-        confirmButtonText={'확인'}
-        cancelButtonText={'취소'}
+        title={'回答を削除'}
+        body={'回答を削除しますか...?'}
+        confirmButtonText={'確認'}
+        cancelButtonText={'キャンセル'}
         ref={answerDeleteModalRef}
         onClick={() => handleDeleteAnswer(id)}
       />

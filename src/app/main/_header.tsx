@@ -63,7 +63,7 @@ export default function MainHeader({ setUserProfile }: headerProps) {
       switch (ws_data.ev_name) {
         case 'question-created-event': {
           const data = ws_data as WebsocketQuestionCreatedEvent;
-          console.debug('WS: 새로운 질문이 생겼어요!,', data.data);
+          console.debug('WS: 新しい質問が届きました!,', data.data);
           MyProfileEv.SendUpdateReq({ questions: data.data.question_numbers });
           MyQuestionEv.SendUpdateReq(data.data);
           toastTimeout.current = setTimeout(() => {
@@ -74,7 +74,7 @@ export default function MainHeader({ setUserProfile }: headerProps) {
         }
         case 'question-deleted-event': {
           const data = ws_data as WebsocketQuestionDeletedEvent;
-          console.debug('WS: 질문이 삭제되었어요!', data.data);
+          console.debug('WS: 質問が削除されました!', data.data);
           MyProfileEv.SendUpdateReq({ questions: data.data.question_numbers });
           MyQuestionEv.SendDeleteReq(data.data);
           setQuestionsToastMenu(false);
@@ -83,12 +83,12 @@ export default function MainHeader({ setUserProfile }: headerProps) {
         case 'answer-created-event': {
           const data = ws_data as WebsocketAnswerCreatedEvent;
           AnswerEv.sendCreatedAnswerEvent(data.data);
-          console.debug('WS: 새로운 답변이 생겼어요!', data.data);
+          console.debug('WS: 新しい回答が届きました!', data.data);
           break;
         }
         case 'answer-deleted-event': {
           const data = ws_data as WebsocketAnswerDeletedEvent;
-          console.debug('WS: 답변이 삭제되었어요!', data.data);
+          console.debug('WS: 回答が削除されました!', data.data);
           break;
         }
         case 'keep-alive': {
@@ -98,16 +98,16 @@ export default function MainHeader({ setUserProfile }: headerProps) {
     };
 
     websocket.current.onopen = () => {
-      console.debug('웹소켓이 열렸어요!');
+      console.debug('WebSocketが開きました!');
       ws_retry_counter.current = 0;
       setWsState(websocket.current?.readyState);
     };
     websocket.current.onclose = (ev: CloseEvent) => {
-      console.debug('웹소켓이 닫혔어요!', ev);
+      console.debug('WebSocketが閉じました!', ev);
       setWsState(websocket.current?.readyState);
     };
     websocket.current.onerror = (ev: Event) => {
-      console.log(`웹소켓 에러`, ev);
+      console.log(`WebSocketエラー`, ev);
       setWsState(websocket.current?.readyState);
     };
   };
@@ -133,10 +133,10 @@ export default function MainHeader({ setUserProfile }: headerProps) {
         if (websocket.current === null || websocket.current?.readyState === 3) {
           if (ws_retry_counter.current < 5) {
             ws_retry_counter.current += 1;
-            console.log('웹소켓 연결 재시도...', ws_retry_counter.current);
+            console.log('WebSocket接続を再試行中...', ws_retry_counter.current);
             webSocketManager();
           } else {
-            console.log('웹소켓 연결 최대 재시도 횟수를 초과했어요!');
+            console.log('WebSocket接続の最大再試行回数を超えました!');
             clearInterval(webSocketRetryInterval);
             return;
           }
@@ -178,7 +178,7 @@ export default function MainHeader({ setUserProfile }: headerProps) {
   useEffect(() => {
     const fn = async () => {
       const now = Math.ceil(Date.now() / 1000);
-      // JWT 리프레시로부터 1시간이 지난 경우 refresh 시도
+      // JWTリフレッシュから1時間が経過した場合、リフレッシュを試みる
       const last_token_refresh = Number.parseInt(localStorage.getItem('last_token_refresh') ?? '0');
       if (now - last_token_refresh > 3600) {
         await refreshJwt();
@@ -194,7 +194,7 @@ export default function MainHeader({ setUserProfile }: headerProps) {
           Neo-Quesdon
         </Link>
       </div>
-      <div className="mr-2 tooltip tooltip-bottom" data-tip="스트리밍 연결상태">
+      <div className="mr-2 tooltip tooltip-bottom" data-tip="ストリーミング接続状態">
         <WebSocketState connection={wsState} />
       </div>
       <div className="dropdown dropdown-end">
@@ -221,7 +221,7 @@ export default function MainHeader({ setUserProfile }: headerProps) {
               className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
             >
               <li>
-                <Link href={'/'}>로그인</Link>
+                <Link href={'/'}>ログイン</Link>
               </li>
             </ul>
           </div>
@@ -232,11 +232,11 @@ export default function MainHeader({ setUserProfile }: headerProps) {
               className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
             >
               <li>
-                <Link href={`/main/user/${profile?.handle}`}>마이페이지</Link>
+                <Link href={`/main/user/${profile?.handle}`}>マイページ</Link>
               </li>
               <li className="flex ">
                 <Link href={'/main/questions'}>
-                  <span>미답변 질문</span>
+                  <span>未回答の質問</span>
                   {questionsNum && questionsNum > 0 ? (
                     <>
                       <div className="w-2 h-2 rounded-full absolute left-[5.6rem] bg-green-400 animate-ping" />
@@ -248,30 +248,30 @@ export default function MainHeader({ setUserProfile }: headerProps) {
                 </Link>
               </li>
               <li>
-                <Link href={'/main/social'}>소셜(베타)</Link>
+                <Link href={'/main/social'}>ソーシャル(ベータ)</Link>
               </li>
               <li>
-                <Link href={'/main/settings'}>설정</Link>
+                <Link href={'/main/settings'}>設定</Link>
               </li>
               <li onClick={() => logoutModalRef.current?.showModal()}>
-                <a>로그아웃</a>
+                <a>ログアウト</a>
               </li>
             </ul>
           </div>
         )}
       </div>
       <DialogModalTwoButton
-        title={'로그아웃'}
-        body={'정말로 로그아웃 하시겠어요?'}
-        confirmButtonText={'로그아웃'}
-        cancelButtonText={'취소'}
+        title={'ログアウト'}
+        body={'本当にログアウトしますか？'}
+        confirmButtonText={'ログアウト'}
+        cancelButtonText={'キャンセル'}
         ref={logoutModalRef}
         onClick={logout}
       />
       <DialogModalOneButton
-        title={'자동 로그아웃'}
-        body={'로그인 유효시간이 만료되어서 로그아웃 되었어요!'}
-        buttonText={'확인'}
+        title={'自動ログアウト'}
+        body={'ログイン有効期限が切れたため、ログアウトされました！'}
+        buttonText={'確認'}
         ref={forcedLogoutModalRef}
         onClick={logout}
       />
@@ -286,8 +286,8 @@ export default function MainHeader({ setUserProfile }: headerProps) {
           >
             <FaInfoCircle size={20} />
             <div className="">
-              <h3 className="text-lg">새 질문이 있어요!</h3>
-              <span className="text-sm font-thin">여기를 눌러 확인하기</span>
+              <h3 className="text-lg">新しい質問があります！</h3>
+              <span className="text-sm font-thin">ここをクリックして確認する</span>
             </div>
           </Link>
           <FaXmark className="absolute top-7 right-8 cursor-pointer" onClick={() => setQuestionsToastMenu(false)} />

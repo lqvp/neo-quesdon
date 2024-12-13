@@ -27,7 +27,7 @@ export async function login(loginReqestData: mastodonCallbackTokenClaimPayload) 
   const redis = RedisService.getRedis();
   const session = await redis.get(`login/mastodon/${loginReq.state}`);
   if (!session) {
-    throw new Error('로그인 세션을 찾을 수 없습니다');
+    throw new Error('ログインセッションが見つかりません');
   } else {
     await redis.del(`login/mastodon/${loginReq.state}`);
   }

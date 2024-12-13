@@ -24,7 +24,7 @@ async function fetchProfile(handle: string) {
     if (res && res.ok) {
       return res.json() as unknown as userProfileDto;
     } else {
-      throw new Error(`프로필을 불러오는데 실패했습니다! ${await res.text()}`);
+      throw new Error(`プロフィールを取得するのに失敗しました！ ${await res.text()}`);
     }
   } catch (err) {
     alert(err);
@@ -41,8 +41,8 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isUserBlocked, setIsUserBlocked] = useState<boolean>(false);
   const [questionSendingDoneMessage, setQuestionSendingDoneMessage] = useState<{ title: string; body: string }>({
-    title: '성공',
-    body: '질문했어요!',
+    title: '成功',
+    body: '質問しました！',
   });
   const questionSendingModalRef = useRef<HTMLDialogElement>(null);
   const blockConfirmModalRef = useRef<HTMLDialogElement>(null);
@@ -87,7 +87,7 @@ export default function Profile() {
   /**
    * @throws throw only when fetch throws exception
    * @param q CreateQuestionDto
-   * @returns create question API 에서 받은 Response
+   * @returns create question API による Response
    */
   const mkQuestionCreateApi = async (q: CreateQuestionDto): Promise<Response> => {
     try {
@@ -97,24 +97,24 @@ export default function Profile() {
       });
       return res;
     } catch (err) {
-      // fetch 자체가 throw 된 경우만 여기서 alert하고 status code가 성공이 아닌 경우는 별도로 핸들링
+      // fetch 自体が throw された場合のみ alert し、status code が成功でない場合は別途ハンドリング
       setIsLoading(false);
-      setQuestionSendingDoneMessage({ title: '에러', body: `질문을 보내는데 실패했어요! ${err}` });
+      setQuestionSendingDoneMessage({ title: 'エラー', body: `質問を送信するのに失敗しました！ ${err}` });
       throw err;
     }
   };
 
   const shareUrl = () => {
     const server = localStorage.getItem('server');
-    const text = `저의 ${josa(
+    const text = `私の${josa(
       userProfile?.questionBoxName,
-      '이에요!',
-      '예요!',
+      'です！',
+      'です！',
     )} #neo_quesdon ${location.origin}/main/user/${userProfile?.handle}`;
     return `https://${server}/share?text=${encodeURIComponent(text)}`;
   };
 
-  // 차단하는 함수
+  // ブロックする関数
   const handleBlock = async () => {
     setIsLoading(true);
     blockSuccessModalRef.current?.showModal();
@@ -130,7 +130,7 @@ export default function Profile() {
     setIsLoading(false);
   };
 
-  // 차단 해제하는 함수
+  // ブロック解除する関数
   const handleUnBlock = async () => {
     setIsLoading(true);
     unblockSuccessModalRef.current?.showModal();
@@ -150,19 +150,19 @@ export default function Profile() {
     const user_handle = localStorage.getItem('user_handle');
     const detectWhiteSpaces = new RegExp(/^\s+$/);
 
-    // 작성자 공개
+    // 投稿者公開
     if (questioner === true) {
       if (user_handle === null) {
         setError('questioner', {
           type: 'notLoggedIn',
-          message: '작성자 공개를 하려면 로그인을 해주세요!',
+          message: '投稿者公開をするにはログインしてください！',
         });
         return;
       }
       if (detectWhiteSpaces.test(e.question) === true) {
         setError('question', {
           type: 'questionOnlyWhiteSpace',
-          message: '아무것도 없는 질문을 보내시려구요...?',
+          message: '何も書かれていない質問を送信しようとしていますか...?',
         });
         return;
       }
@@ -181,22 +181,22 @@ export default function Profile() {
         setIsLoading(false);
       } else {
         setIsLoading(false);
-        setQuestionSendingDoneMessage({ title: '에러', body: `질문을 보내는데 실패했어요! ${await res.text()}` });
+        setQuestionSendingDoneMessage({ title: 'エラー', body: `質問を送信するのに失敗しました！ ${await res.text()}` });
       }
     }
-    // 작성자 비공개
+    // 投稿者非公開
     else {
       if (userProfile?.stopAnonQuestion === true) {
         setError('questioner', {
           type: 'stopAnonQuestion',
-          message: '익명 질문은 받지 않고 있어요...',
+          message: '匿名質問は受け付けていません...',
         });
         return;
       } else {
         if (detectWhiteSpaces.test(e.question) === true) {
           setError('question', {
             type: 'questionOnlyWhiteSpace',
-            message: '아무것도 없는 질문을 보내시려구요...?',
+            message: '何も書かれていない質問を送信しようとしていますか...?',
           });
           return;
         }
@@ -214,7 +214,7 @@ export default function Profile() {
           setIsLoading(false);
         } else {
           setIsLoading(false);
-          setQuestionSendingDoneMessage({ title: '에러', body: `질문을 보내는데 실패했어요! ${await res.text()}` });
+          setQuestionSendingDoneMessage({ title: 'エラー', body: `質問を送信するのに失敗しました！ ${await res.text()}` });
         }
       }
     }
@@ -234,7 +234,7 @@ export default function Profile() {
           method: 'POST',
           body: JSON.stringify({ targetHandle: profileHandle }),
         });
-        if (!res.ok) alert('차단여부를 불러오는데 오류가 발생했어요!');
+        if (!res.ok) alert('ブロック状態を取得するのにエラーが発生しました！');
         const data = (await res.json()) as SearchBlockListResDto;
         setIsUserBlocked(data.isBlocked);
       })();
@@ -254,13 +254,13 @@ export default function Profile() {
                 {isUserBlocked ? (
                   <li>
                     <a className="w-full" onClick={() => unblockConfirmModalRef.current?.showModal()}>
-                      차단 해제
+                      ブロック解除
                     </a>
                   </li>
                 ) : (
                   <li>
                     <a className="w-full hover:bg-red-500" onClick={() => blockConfirmModalRef.current?.showModal()}>
-                      차단
+                      ブロック
                     </a>
                   </li>
                 )}
@@ -279,7 +279,7 @@ export default function Profile() {
               {userProfile.stopAnonQuestion && !userProfile.stopNewQuestion && (
                 <div className="chat chat-end w-32 window:w-full desktop:w-full relative bottom-[40%] right-[22%] window:right-[60%] deskstop:left-[60%]">
                   <div className="chat-bubble text-xs flex items-center bg-base-100 text-slate-700 dark:text-slate-400">
-                    작성자 공개 질문만 받아요!
+                    投稿者公開の質問のみ受け付けています！
                   </div>
                 </div>
               )}
@@ -291,12 +291,12 @@ export default function Profile() {
             {userProfile && userProfile.stopNewQuestion ? (
               <div className="flex flex-col items-center desktop:flex-row">
                 <NameComponents username={userProfile.name} width={32} height={32} />
-                <span>님은 지금 질문을 받지 않고 있어요...</span>
+                <span>さんは現在質問を受け付けていません...</span>
               </div>
             ) : (
               <div className="flex flex-col items-center desktop:flex-row window:flex-row window:text-2xl">
                 <NameComponents username={userProfile?.name} width={32} height={32} />
-                <span>님의 {josa(userProfile?.questionBoxName, '이에요!', '예요!')}</span>
+                <span>さんの{josa(userProfile?.questionBoxName, 'です！', 'です！')}</span>
               </div>
             )}
           </div>
@@ -307,7 +307,7 @@ export default function Profile() {
               required: 'required',
               maxLength: 1000,
             })}
-            placeholder="질문 내용을 입력해 주세요"
+            placeholder="質問内容を入力してください"
             className={`w-[90%] mb-2 font-thin leading-loose textarea ${
               errors.question ? 'textarea-error' : 'textarea-bordered'
             }`}
@@ -341,10 +341,10 @@ export default function Profile() {
                 onClick={() => setValue('questioner', !questioner)}
               />
               <input type="hidden" {...register('questioner')} />
-              <span>작성자 공개</span>
+              <span>投稿者公開</span>
             </div>
             <button type="submit" className="btn btn-primary">
-              질문하기
+              質問する
             </button>
           </div>
         </form>
@@ -352,56 +352,56 @@ export default function Profile() {
       {localHandle === profileHandle && (
         <div className="h-fit py-4 glass rounded-box flex flex-col items-center shadow mb-2 dark:text-white">
           <a className="link" href={shareUrl()} target="_blank" rel="noreferrer">
-            {userProfile?.instanceType}에 질문상자 페이지를 공유
+            {userProfile?.instanceType}に質問箱ページを共有
           </a>
         </div>
       )}
       <DialogModalLoadingOneButton
         isLoading={isLoading}
-        title_loading={'보내는 중'}
+        title_loading={'送信中'}
         title_done={questionSendingDoneMessage.title}
-        body_loading={'질문을 보내고 있어요...'}
+        body_loading={'質問を送信中です...'}
         body_done={questionSendingDoneMessage.body}
-        loadingButtonText={'로딩중'}
-        doneButtonText={'닫기'}
+        loadingButtonText={'ロード中'}
+        doneButtonText={'閉じる'}
         ref={questionSendingModalRef}
       />
       <DialogModalTwoButton
-        title={'차단'}
+        title={'ブロック'}
         body={
-          '정말 차단하시겠어요...?\n차단 이후에는 서로의 답변이 숨겨지고 차단한 사람이 나에게 질문을 할 수 없게 되어요.'
+          '本当にブロックしますか...?\nブロック後はお互いの回答が非表示になり、ブロックした人があなたに質問を送ることができなくなります。'
         }
-        confirmButtonText={'확인'}
+        confirmButtonText={'確認'}
         onClick={handleBlock}
-        cancelButtonText={'취소'}
+        cancelButtonText={'キャンセル'}
         ref={blockConfirmModalRef}
       />
       <DialogModalLoadingOneButton
         isLoading={isLoading}
-        title_loading={'차단'}
-        title_done={'차단'}
-        body_loading={'차단하는 중...'}
-        body_done={'차단되었어요!'}
-        loadingButtonText={'로딩중'}
-        doneButtonText={'닫기'}
+        title_loading={'ブロック'}
+        title_done={'ブロック'}
+        body_loading={'ブロック中...'}
+        body_done={'ブロックされました！'}
+        loadingButtonText={'ロード中'}
+        doneButtonText={'閉じる'}
         ref={blockSuccessModalRef}
       />
       <DialogModalTwoButton
-        title={'차단 해제'}
-        body={'차단 해제하시겠어요?'}
-        confirmButtonText={'확인'}
+        title={'ブロック解除'}
+        body={'ブロックを解除しますか？'}
+        confirmButtonText={'確認'}
         onClick={handleUnBlock}
-        cancelButtonText={'취소'}
+        cancelButtonText={'キャンセル'}
         ref={unblockConfirmModalRef}
       />
       <DialogModalLoadingOneButton
         isLoading={isLoading}
-        title_loading={'차단 해제'}
-        title_done={'차단 해제'}
-        body_loading={'차단 해제하는 중...'}
-        body_done={'차단 해제되었어요!'}
-        loadingButtonText={'로딩중'}
-        doneButtonText={'닫기'}
+        title_loading={'ブロック解除'}
+        title_done={'ブロック解除'}
+        body_loading={'ブロック解除中...'}
+        body_done={'ブロックが解除されました！'}
+        loadingButtonText={'ロード中'}
+        doneButtonText={'閉じる'}
         ref={unblockSuccessModalRef}
       />
     </div>

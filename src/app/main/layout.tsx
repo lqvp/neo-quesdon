@@ -83,7 +83,7 @@ async function fetchAllAnswers(req: FetchAllAnswersReqDto) {
       const answers = ((await res.json()) as AnswerListWithProfileDto).answersList;
       return answers;
     } else {
-      throw new Error(`답변을 불러오는데 실패했어요!: ${await res.text()}`);
+      throw new Error(`回答を取得するのに失敗しました！: ${await res.text()}`);
     }
   } catch (err) {
     alert(err);

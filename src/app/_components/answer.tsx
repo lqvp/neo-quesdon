@@ -47,9 +47,9 @@ export default function Answer({ value, idState, ref }: askProps) {
     <div className="w-full glass rounded-box px-2 desktop:px-8 py-4 mb-2 shadow">
       {!showNsfw && (
         <div className="fixed top-0 left-0 z-10 gap-2 w-full h-full flex flex-col justify-center items-center">
-          <span>답변자가 NSFW로 체크한 질문이에요!</span>
+          <span>回答者がNSFWとマークした質問です！</span>
           <button className="btn" onClick={() => setShowNsfw(!showNsfw)}>
-            질문 보기
+            質問を見る
           </button>
         </div>
       )}
@@ -61,7 +61,7 @@ export default function Answer({ value, idState, ref }: askProps) {
               {value.questioner ? (
                 <Link href={`/main/user/${value.questioner}`}>{value.questioner}</Link>
               ) : (
-                '익명의 질문자'
+                '匿名の質問者'
               )}
             </div>
             <div className="flex items-center text-sm break-all window:text-xl desktop:text-2xl chat-bubble text-slate-200">
@@ -79,7 +79,7 @@ export default function Answer({ value, idState, ref }: askProps) {
                   }
                 }}
               >
-                삭제
+                削除
               </a>
             </div>
           )}
@@ -88,7 +88,7 @@ export default function Answer({ value, idState, ref }: askProps) {
           <div className="chat-image avatar">
             <div className="w-12 rounded-full">
               <Link href={`/main/user/${value.answeredPersonHandle}`}>
-                <img src={userInfo?.avatarUrl} alt="answered person avatar" />
+                <img src={userInfo?.avatarUrl} alt="回答者のアバター" />
               </Link>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function Answer({ value, idState, ref }: askProps) {
           </div>
           <div className="chat-footer font-thin text-xs mt-2 underline text-blue-900 dark:text-slate-100">
             <Link href={`/main/user/${value.answeredPersonHandle}/${value.id}`}>
-              {new Date(value.answeredAt).toLocaleString('ko-kr', { hour12: false })}
+              {new Date(value.answeredAt).toLocaleString('ja-JP', { hour12: false })}
             </Link>
           </div>
         </div>

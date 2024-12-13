@@ -18,7 +18,7 @@ const fetchQuestions = async (): Promise<questionDto[] | null> => {
     if (res.status === 401) {
       return null;
     } else if (!res.ok) {
-      throw new Error(`내 질문을 불러오는데 실패했어요!: ${await res.text()}`);
+      throw new Error(`自分の質問を取得するのに失敗しました!: ${await res.text()}`);
     } else {
       return await res.json();
     }
@@ -38,13 +38,13 @@ export default function Questions() {
 
   const onNewQuestion = (ev: CustomEvent<questionDto>) => {
     const logger = new Logger('onNewQuestion', { noColor: true });
-    logger.log('New Question has arrived: ', ev.detail);
+    logger.log('新しい質問が届きました: ', ev.detail);
     setQuestions((prev) => (prev ? [ev.detail, ...prev] : []));
   };
 
   const onDeleteQuestion = (ev: CustomEvent<QuestionDeletedPayload>) => {
     const logger = new Logger('onNewQuestion', { noColor: true });
-    logger.log('Question Deleted: ', ev.detail);
+    logger.log('質問が削除されました: ', ev.detail);
     setQuestions((prev) => prev && prev.filter((el) => el.id !== ev.detail.deleted_id));
   };
 
@@ -63,7 +63,7 @@ export default function Questions() {
 
   return (
     <div className="w-[90%] window:w-[80%] desktop:w-[70%] flex flex-col justify-center">
-      <h3 className="text-3xl desktop:text-4xl mb-2">미답변 질문들</h3>
+      <h3 className="text-3xl desktop:text-4xl mb-2">未回答の質問</h3>
       {questions === undefined ? (
         <div className="w-full flex justify-center">
           <span className="loading loading-spinner loading-lg" />
@@ -91,32 +91,32 @@ export default function Questions() {
                 </div>
               ) : (
                 <div className="h-fit p-4 glass rounded-box flex flex-col items-center shadow mb-2">
-                  <h1 className="text-xl desktop:text-3xl">👍 답변하지 않은 질문이 없어요!</h1>
+                  <h1 className="text-xl desktop:text-3xl">👍 未回答の質問はありません！</h1>
                 </div>
               )}
             </div>
           ) : (
             <div className="w-full flex justify-center">
-              <span className="text-2xl">로그인이 안 되어있어요!</span>
+              <span className="text-2xl">ログインされていません！</span>
             </div>
           )}
         </div>
       )}
       <DialogModalLoadingOneButton
         isLoading={isLoading}
-        title_loading={'보내는 중'}
-        title_done={'답변완료'}
-        body_loading={'답변을 보내고 있어요...'}
-        body_done={'답변했어요!'}
-        loadingButtonText={'로딩중...'}
-        doneButtonText={'확인'}
+        title_loading={'送信中'}
+        title_done={'回答完了'}
+        body_loading={'回答を送信中です...'}
+        body_done={'回答しました！'}
+        loadingButtonText={'ロード中...'}
+        doneButtonText={'確認'}
         ref={answeredQuestionModalRef}
       />
       <DialogModalTwoButton
-        title={'질문 지우기'}
-        body={'질문을 지울까요...?'}
-        confirmButtonText={'확인'}
-        cancelButtonText={'취소'}
+        title={'質問を削除'}
+        body={'質問を削除しますか...?'}
+        confirmButtonText={'確認'}
+        cancelButtonText={'キャンセル'}
         ref={deleteQuestionModalRef}
         onClick={() => {
           deleteQuestion(id);

@@ -57,7 +57,7 @@ export default function CallbackPage() {
           router.replace('/main');
         }
       } catch (err) {
-        setErrorMessage(`로그인 중에 문제가 발생했어요... 다시 시도해 보세요`);
+        setErrorMessage(`ログイン中に問題が発生しました... 再度お試しください`);
         errModalRef.current?.showModal();
         console.error(err);
       }
@@ -70,7 +70,7 @@ export default function CallbackPage() {
     <>
       <div className="w-full h-[100vh] flex flex-col gap-2 justify-center items-center text-3xl">
         <Image src={`/loading/${id}.gif`} width={64} height={64} alt="Login Loading" unoptimized />
-        <span>로그인하고 있어요...</span>
+        <span>ログインしています...</span>
       </div>
       <DialogModalOneButton
         title={'오류'}

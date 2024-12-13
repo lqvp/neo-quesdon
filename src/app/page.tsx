@@ -15,7 +15,7 @@ interface FormValue {
 }
 
 /**
- * 미스키 전용 Auth Function
+ * Misskey 専用認証関数
  * @param loginReqDto
  * @returns
  */
@@ -28,13 +28,13 @@ const misskeyAuth = async ({ host }: loginReqDto) => {
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    throw new Error(`Misskey login Error! ${res.status}, ${await res.text()}`);
+    throw new Error(`Misskey ログインエラー! ${res.status}, ${await res.text()}`);
   }
   return await res.json();
 };
 
 /**
- * 마스토돈 전용 Auth Function
+ * Mastodon 専用認証関数
  * @param loginReqDto
  * @returns
  */
@@ -47,7 +47,7 @@ const mastodonAuth = async ({ host }: loginReqDto) => {
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    throw new Error(`Mastodon login Error! ${res.status}, ${await res.text()}`);
+    throw new Error(`Mastodon ログインエラー! ${res.status}, ${await res.text()}`);
   }
   return await res.json();
 };
@@ -58,9 +58,10 @@ const goWithoutLogin = async () => {
   } catch {}
   window.location.replace('/main');
 };
+
 /**
- * https://example.com/ 같은 URL 형식이나 handle 형식으로 입력한 경우 host로 변환.
- * host를 소문자 처리후 반환
+ * https://example.com/ のようなURL形式やhandle形式で入力された場合、hostに変換します。
+ * hostを小文字に変換して返します。
  * @param urlOrHostOrHandle
  * @returns
  */
@@ -71,11 +72,11 @@ function convertHost(urlOrHostOrHandle: string) {
   const matched_host_from_handle = urlOrHostOrHandle.match(handle_regex)?.[0];
   if (matched_host_from_url) {
     const replaceed = matched_host_from_url.replaceAll('/', '').toLowerCase();
-    console.log(`URL ${urlOrHostOrHandle} replaced with ${replaceed}`);
+    console.log(`URL ${urlOrHostOrHandle} は ${replaceed} に置き換えられました`);
     return replaceed;
   } else if (matched_host_from_handle) {
     const replaced = matched_host_from_handle.replaceAll('@', '').toLowerCase();
-    console.log(`Handle ${urlOrHostOrHandle} replaced with ${replaced}`);
+    console.log(`Handle ${urlOrHostOrHandle} は ${replaced} に置き換えられました`);
     return replaced;
   }
   return urlOrHostOrHandle.toLowerCase();
@@ -126,12 +127,12 @@ export default function Home() {
               });
             break;
           default:
-            setErrorMessage(`알 수 없는 인스턴스 타입 '${type}' 이에요!`);
+            setErrorMessage(`不明なインスタンスタイプ '${type}' です!`);
             errModalRef.current?.showModal();
         }
       })
       .catch(() => {
-        setErrorMessage('인스턴스 타입 감지에 실패했어요!');
+        setErrorMessage('インスタンスタイプの検出に失敗しました!');
         errModalRef.current?.showModal();
       })
       .finally(() => {
@@ -151,14 +152,14 @@ export default function Home() {
   useEffect(() => {
     const fn = async () => {
       setIsLoading(true);
-      /// 이미 로그인 되어있는 경우 빠른 재 로그인 시도
+      /// すでにログインしている場合、高速再ログインを試みる
       const lastUsedHost = localStorage.getItem('server');
       const lastUsedHandle = localStorage.getItem('user_handle');
       if (lastUsedHost && lastUsedHandle != null) {
-        console.log('Try Fast Relogin...');
+        console.log('高速再ログインを試みます...');
         const relogin_success = await loginCheck();
         if (relogin_success) {
-          console.log('Fast ReLogin OK!!');
+          console.log('高速再ログイン成功!!');
           router.replace('/main');
           return;
         } else {
@@ -181,7 +182,7 @@ export default function Home() {
             <h1 className="text-7xl font-bold z-10 mb-2 desktop:mb-0">Neo-Quesdon</h1>
           </div>
           <span className="font-thin tracking-wider text-base desktop:text-lg">
-            Misskey / CherryPick / Mastodon 에서 사용할 수 있는 새로운 Quesdon
+            Misskey / CherryPick / Mastodon で使用できる新しい Quesdon
           </span>
         </div>
         <div className="flex flex-col desktop:flex-row items-center">
@@ -189,11 +190,11 @@ export default function Home() {
             {errors.address && errors.address.type === 'pattern' && (
               <div
                 className="tooltip tooltip-open tooltip-error transition-opacity"
-                data-tip="올바른 URL을 입력해주세요"
+                data-tip="正しいURLを入力してください"
               />
             )}
             {errors.address && errors.address.message === 'required' && (
-              <div className="tooltip tooltip-open tooltip-error transition-opacity" data-tip="URL을 입력해주세요" />
+              <div className="tooltip tooltip-open tooltip-error transition-opacity" data-tip="URLを入力してください" />
             )}
             <input
               id="serverNameInput"
@@ -217,7 +218,7 @@ export default function Home() {
                 </div>
               ) : (
                 <div>
-                  <span>로그인</span>
+                  <span>ログイン</span>
                 </div>
               )}
             </button>
@@ -226,7 +227,7 @@ export default function Home() {
               className={`btn ml-4 ${isLoading ? 'btn-disabled' : 'btn-outline'}`}
               onClick={goWithoutLogin}
             >
-              로그인 없이 즐기기
+              ログインせずに楽しむ
             </button>
           </div>
         </div>
@@ -235,9 +236,9 @@ export default function Home() {
         <GithubRepoLink />
       </footer>
       <DialogModalOneButton
-        title={'오류'}
-        body={`로그인 오류가 발생했어요! ${errMessage}`}
-        buttonText={'확인'}
+        title={'エラー'}
+        body={`ログインエラーが発生しました! ${errMessage}`}
+        buttonText={'確認'}
         ref={errModalRef}
       />
     </div>
