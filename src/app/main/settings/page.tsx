@@ -11,7 +11,8 @@ import BlockList from '@/app/main/settings/_table';
 import CollapseMenu from '@/app/_components/collapseMenu';
 import DialogModalTwoButton from '@/app/_components/modalTwoButton';
 import { AccountCleanReqDto } from '@/app/_dto/account-clean/account-clean.dto';
-import { FaEraser, FaLock, FaUserLargeSlash } from 'react-icons/fa6';
+import { FaLock, FaUserLargeSlash } from 'react-icons/fa6';
+import { MdDeleteSweep, MdOutlineCleaningServices } from 'react-icons/md';
 
 export type FormValue = {
   stopAnonQuestion: boolean;
@@ -33,7 +34,8 @@ async function updateUserSettings(value: FormValue) {
     wordMuteList: value.wordMuteList
       .split('\n')
       .map((v) => v.trim())
-      .filter((v) => v.length > 0),
+      .filter((v) => v.length > 0)
+      .map((word) => word.replace(/^\/|\/[igmsuy]{0,6}$/g, '')),
   };
   try {
     const res = await fetch('/api/user/settings', {
@@ -64,6 +66,7 @@ export default function Settings() {
   const logoutAllModalRef = useRef<HTMLDialogElement>(null);
   const accountCleanModalRef = useRef<HTMLDialogElement>(null);
   const importBlockModalRef = useRef<HTMLDialogElement>(null);
+  const deleteAllQuestionsModalRef = useRef<HTMLDialogElement>(null);
 
   const {
     register,
@@ -165,6 +168,17 @@ export default function Settings() {
     setTimeout(() => {
       setButtonClicked(false);
     }, 2000);
+  };
+
+  const onDeleteAllQuestions = async () => {
+    setButtonClicked(true);
+    const res = await fetch('/api/db/questions', {
+      method: 'DELETE',
+    });
+    setButtonClicked(false);
+    if (!res.ok) {
+      throw new Error('すべての質問を削除することに失敗しました！');
+    }
   };
 
   return (
@@ -312,7 +326,7 @@ export default function Settings() {
                           </button>
                           <Divider />
                           <div className="font-normal text-xl py-3 flex items-center gap-2">
-                            <FaEraser />
+                            <MdOutlineCleaningServices />
                             アカウントのクリーニング
                           </div>
                           <div className="font-thin px-4 py-2 break-keep">
@@ -327,6 +341,24 @@ export default function Settings() {
                           >
                             {buttonClicked ? '少々お待ちください...' : 'すべての回答を削除'}
                           </button>
+                          <Divider />
+                          <div className="font-normal text-xl py-3 flex items-center gap-2">
+                            <MdDeleteSweep size={24} />
+                            すべての質問を削除
+                          </div>
+                          <div className="font-thin px-4 py-2 break-keep">
+                            まだ回答していないすべての質問を削除します。削除された内容は元に戻せないので、ご注意ください。
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              deleteAllQuestionsModalRef.current?.showModal();
+                            }}
+                            className={`btn ${buttonClicked ? 'btn-disabled' : 'btn-error'}`}
+                          >
+                            {buttonClicked ? '少々お待ちください...' : 'すべての質問を削除'}
+                          </button>
+                          <Divider />
                         </div>
                       </CollapseMenu>
                     </>
@@ -342,6 +374,14 @@ export default function Settings() {
             cancelButtonText={'いいえ'}
             ref={logoutAllModalRef}
             onClick={onLogoutAll}
+          />
+          <DialogModalTwoButton
+            title={'警告'}
+            body={'未回答の質問をすべて削除しますか？ \nこの作業には時間がかかり、削除された質問は復元できません！'}
+            confirmButtonText={'はい'}
+            cancelButtonText={'いいえ'}
+            ref={deleteAllQuestionsModalRef}
+            onClick={onDeleteAllQuestions}
           />
           <DialogModalTwoButton
             title={'警告'}
