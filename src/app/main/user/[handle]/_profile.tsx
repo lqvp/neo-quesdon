@@ -4,7 +4,7 @@ import DialogModalLoadingOneButton from '@/app/_components/modalLoadingOneButton
 import DialogModalTwoButton from '@/app/_components/modalTwoButton';
 import NameComponents from '@/app/_components/NameComponents';
 import { SearchBlockListResDto } from '@/app/_dto/blocking/blocking.dto';
-import { CreateQuestionDto } from '@/app/_dto/create_question/create-question.dto';
+import { CreateQuestionDto } from '@/app/_dto/questions/create-question.dto';
 import { userProfileDto } from '@/app/_dto/fetch-profile/Profile.dto';
 import josa from '@/app/api/_utils/josa';
 import Link from 'next/link';
@@ -15,7 +15,7 @@ import { FaEllipsisVertical } from 'react-icons/fa6';
 
 type FormValue = {
   question: string;
-  questioner: boolean;
+  nonAnonQuestion: boolean;
 };
 
 async function fetchProfile(handle: string) {
@@ -63,11 +63,11 @@ export default function Profile() {
   } = useForm<FormValue>({
     defaultValues: {
       question: '',
-      questioner: false,
+      nonAnonQuestion: false,
     },
   });
 
-  const questioner = watch('questioner');
+  const nonAnonQuestion = watch('nonAnonQuestion');
 
   const onCtrlEnter = async (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
@@ -150,10 +150,10 @@ export default function Profile() {
     const user_handle = localStorage.getItem('user_handle');
     const detectWhiteSpaces = new RegExp(/^\s+$/);
 
-    // 投稿者公開
-    if (questioner === true) {
+    // 작성자 공개
+    if (nonAnonQuestion === true) {
       if (user_handle === null) {
-        setError('questioner', {
+        setError('nonAnonQuestion', {
           type: 'notLoggedIn',
           message: '投稿者公開をするにはログインしてください！',
         });
@@ -169,7 +169,7 @@ export default function Profile() {
 
       const req: CreateQuestionDto = {
         question: e.question,
-        questioner: user_handle,
+        isAnonymous: !nonAnonQuestion,
         questionee: profileHandle,
       };
       reset();
@@ -187,7 +187,7 @@ export default function Profile() {
     // 投稿者非公開
     else {
       if (userProfile?.stopAnonQuestion === true) {
-        setError('questioner', {
+        setError('nonAnonQuestion', {
           type: 'stopAnonQuestion',
           message: '匿名質問は受け付けていません...',
         });
@@ -203,7 +203,7 @@ export default function Profile() {
 
         const req: CreateQuestionDto = {
           question: e.question,
-          questioner: null,
+          isAnonymous: !nonAnonQuestion,
           questionee: profileHandle,
         };
         reset();
@@ -315,16 +315,16 @@ export default function Profile() {
             disabled={userProfile?.stopNewQuestion === true ? true : false}
             style={{ resize: 'none' }}
           />
-          {errors.questioner && errors.questioner.type === 'stopAnonQuestion' && (
+          {errors.nonAnonQuestion && errors.nonAnonQuestion.type === 'stopAnonQuestion' && (
             <div
               className="tooltip tooltip-open tooltip-bottom tooltip-error transition-opacity"
-              data-tip={errors.questioner.message}
+              data-tip={errors.nonAnonQuestion.message}
             />
           )}
-          {errors.questioner && errors.questioner.type === 'notLoggedIn' && (
+          {errors.nonAnonQuestion && errors.nonAnonQuestion.type === 'notLoggedIn' && (
             <div
               className="tooltip tooltip-open tooltip-bottom tooltip-error transition-opacity"
-              data-tip={errors.questioner.message}
+              data-tip={errors.nonAnonQuestion.message}
             />
           )}
           {errors.question && errors.question.type === 'questionOnlyWhiteSpace' && (
@@ -338,9 +338,9 @@ export default function Profile() {
               <input
                 type="checkbox"
                 className="toggle toggle-accent"
-                onClick={() => setValue('questioner', !questioner)}
+                onClick={() => setValue('nonAnonQuestion', !nonAnonQuestion)}
               />
-              <input type="hidden" {...register('questioner')} />
+              <input type="hidden" {...register('nonAnonQuestion')} />
               <span>投稿者公開</span>
             </div>
             <button type="submit" className="btn btn-primary">

@@ -3,17 +3,27 @@
 import Answer from '@/app/_components/answer';
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { fetchAnswer } from './action';
-import { AnswerDto } from '@/app/_dto/Answers.dto';
+import { AnswerDto } from '@/app/_dto/answers/Answers.dto';
 import DialogModalTwoButton from '@/app/_components/modalTwoButton';
 
 export default function SingleAnswer() {
   const [answerBody, setAnswerBody] = useState<AnswerDto>();
   const singleQuestionDeleteModalRef = useRef<HTMLDialogElement>(null);
   const { answer } = useParams() as { answer: string };
+  const { userHandle } = useParams() as { userHandle: string };
+
+  async function fetchAnswer(id: string) {
+    const res = await fetch(`/api/db/answers/${userHandle}/${id}`, {
+      method: 'GET',
+    });
+    if (!res.ok) {
+      throw new Error(`Fail to fetch answer! ${await res.text()}`);
+    }
+    return await res.json();
+  }
 
   const handleDeleteAnswer = async (id: string) => {
-    const res = await fetch(`/api/db/answers/${id}`, {
+    const res = await fetch(`/api/db/answers/${userHandle}/${id}`, {
       method: 'DELETE',
     });
     try {
@@ -33,7 +43,7 @@ export default function SingleAnswer() {
 
   return (
     <div className="flex w-[90%] window:w-[80%] desktop:w-[70%]">
-      {answerBody && (
+      {answerBody ? (
         <>
           <Answer value={answerBody} id={answerBody.id} ref={singleQuestionDeleteModalRef} />
           <DialogModalTwoButton
@@ -63,6 +73,10 @@ export default function SingleAnswer() {
             </div>
           </div>
         </>
+      ) : (
+        <div className="w-full text-2xl flex gap-2 justify-center items-center border shadow rounded-box p-4 glass">
+          <span>お探しの回答がありません！</span>
+        </div>
       )}
     </div>
   );
