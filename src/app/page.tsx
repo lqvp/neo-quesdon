@@ -202,7 +202,7 @@ export default function Home() {
                 pattern: /\./,
                 required: 'required',
               })}
-              placeholder="serafuku.moe"
+              placeholder="mi.0il.pw"
               className="w-full input input-bordered text-lg desktop:text-3xl mb-4 desktop:mb-0"
             />
           </form>

@@ -9,6 +9,7 @@ import { questionDto } from '@/app/_dto/questions/question.dto';
 interface formValue {
   answer: string;
   nsfw: boolean;
+  hideFromMain: boolean;
   visibility: 'public' | 'home' | 'followers';
 }
 
@@ -46,6 +47,7 @@ export default function Question({
   } = useForm<formValue>({
     defaultValues: {
       nsfw: false,
+      hideFromMain: false,
       visibility: defaultVisibility,
       answer: '',
     },
@@ -68,6 +70,7 @@ export default function Question({
   };
 
   const nsfwedAnswer = watch('nsfw');
+  const hideFromMain = watch('hideFromMain');
 
   const onSubmit: SubmitHandler<formValue> = async (e) => {
     const detectWhiteSpaces = new RegExp(/^\s+$/);
@@ -91,6 +94,7 @@ export default function Question({
         questionId: questionId,
         answer: e.answer,
         nsfwedAnswer: e.nsfw,
+        hideFromMain: e.hideFromMain,
         visibility: e.visibility,
       };
       await postAnswer(req);
@@ -141,7 +145,7 @@ export default function Question({
   };
 
   useEffect(() => {
-    reset({ visibility: defaultVisibility, nsfw: false });
+    reset({ visibility: defaultVisibility, nsfw: false, hideFromMain: false });
   }, [defaultVisibility]);
 
   return (
@@ -170,8 +174,8 @@ export default function Question({
           </span>
         </div>
       </div>
-      <div className="text-2xl chat chat-end">
-        <div className="chat-bubble bg-green-600 text-slate-300 dark:text-slate-200">
+      <div className="flex justify-end px-2 text-2xl chat chat-end">
+        <div className="chat-bubble px-2 desktop:px-4 bg-green-600 text-slate-300 dark:text-slate-200">
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2 py-2">
             {errors.answer && errors.answer.type === 'answerOnlyWhiteSpace' && (
               <div className="tooltip tooltip-open tooltip-error transition-opacity" data-tip={errors.answer.message} />
@@ -187,30 +191,40 @@ export default function Question({
             />
 
             <div className="w-full flex flex-col gap-3 desktop:flex-row justify-between items-center">
-              <div className="flex gap-6 mb-2 desktop:mb-0">
-                <div className="flex gap-2 items-center text-xl">
-                  <input
-                    type="checkbox"
-                    className="toggle toggle-accent"
-                    onClick={() => setValue('nsfw', !nsfwedAnswer)}
-                  />
-                  <input type="hidden" {...register('nsfw')} />
-                  <span className="text-sm desktop:text-xl">NSFWとしてチェック</span>
+              <div className="flex gap-4">
+                <div className="flex flex-col desktop:flex-row gap-2 text-xl">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-accent toggle-sm"
+                      onClick={() => setValue('nsfw', !nsfwedAnswer)}
+                    />
+                    <input type="hidden" {...register('nsfw')} />
+                    <span className="w-full text-sm desktop:text-md">NSFWとしてチェック</span>
+                  </div>
+                  <div className="flex items-center gap-2 tooltip" data-tip="「最近投稿された回答」で回答が非表示になります。">
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-accent toggle-sm"
+                      onClick={() => setValue('hideFromMain', !hideFromMain)}
+                    />
+                    <input type="hidden" {...register('hideFromMain')} />
+                    <span className="w-full text-sm desktop:text-md break-keep">メインから非表示</span>
+                  </div>
                 </div>
-                <select {...register('visibility')} className="select select-ghost select-sm dark:shadow">
-                  <option className={'hidden'} value={undefined}>
-                    ...
-                  </option>
-                  <option value="public">公開</option>
-                  <option value="home">ホーム</option>
-                  <option value="followers">フォロワー</option>
-                </select>
+                <div className="tooltip" data-tip="답변 노트를 올릴 범위">
+                  <select {...register('visibility')} className="select select-ghost select-sm dark:shadow tooltip">
+                    <option className={'hidden'} value={undefined}>
+                      ...
+                    </option>
+                    <option value="public">パブリック</option>
+                    <option value="home">ホーム</option>
+                    <option value="followers">フォロワー</option>
+                  </select>
+                </div>
               </div>
               <div className="w-full desktop:w-fit flex justify-center">
-                <button
-                  type={'submit'}
-                  className="btn btn-outline dark:border-white dark:text-slate-200 btn-sm h-10 w-16 desktop:btn-md"
-                >
+                <button type={'submit'} className="btn btn-outline dark:border-white dark:text-slate-200 h-10 btn-md ">
                   回答
                 </button>
               </div>
