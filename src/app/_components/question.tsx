@@ -182,6 +182,7 @@ export default function Question({
             }}
           >
             質問者をブロック
+          </span>
         </div>
       </div>
       <div className="flex justify-end px-2 text-2xl chat chat-end">

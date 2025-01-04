@@ -133,7 +133,7 @@ export default function Questions() {
         cancelButtonText={'キャンセル'}
         ref={createBlockModalRef}
         onClick={() => {
-          deleteQuestion(id, onApiError);
+          createBlock(id, onApiError);
         }}
       />
     </div>
