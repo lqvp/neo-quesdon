@@ -33,10 +33,10 @@ export default function SingleAnswer({ answerBody }: { answerBody: AnswerWithPro
         <>
           <Answer value={answerBody} id={answerBody.id} ref={singleQuestionDeleteModalRef} />
           <DialogModalTwoButton
-            title={'답변 지우기'}
-            body={'답변을 지울까요...?'}
-            confirmButtonText={'확인'}
-            cancelButtonText={'취소'}
+            title={'回答を削除'}
+            body={'回答を削除しますか...？'}
+            confirmButtonText={'確認'}
+            cancelButtonText={'キャンセル'}
             ref={singleQuestionDeleteModalRef}
             onClick={() => handleDeleteAnswer(answerBody.id)}
           />
