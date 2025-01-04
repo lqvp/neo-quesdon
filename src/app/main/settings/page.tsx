@@ -15,6 +15,7 @@ import { MdDeleteSweep, MdOutlineCleaningServices } from 'react-icons/md';
 import { MyProfileContext } from '@/app/main/layout';
 import { MyProfileEv } from '@/app/main/_events';
 import { getProxyUrl } from '@/utils/getProxyUrl/getProxyUrl';
+import { onApiError } from '@/utils/api-error/onApiError';
 
 export type FormValue = {
   stopAnonQuestion: boolean;
@@ -48,11 +49,11 @@ async function updateUserSettings(value: FormValue) {
       },
     });
     if (!res.ok) {
-      throw await res.text();
+      onApiError(res.status, res);
+      return;
     }
     MyProfileEv.SendUpdateReq({ ...body });
   } catch (err) {
-    alert(`設定の更新に失敗しました ${err}`);
     throw err;
   }
 }
@@ -111,12 +112,8 @@ export default function Settings() {
     if (res.ok) {
       localStorage.removeItem('user_handle');
       window.location.href = '/';
-    } else if (res.status === 429) {
-      alert('リクエスト制限を超えました。しばらくしてから再度お試しください');
-      setButtonClicked(false);
-      return;
     } else {
-      alert('エラーが発生しました');
+      onApiError(res.status, res);
       setButtonClicked(false);
       return;
     }
@@ -129,7 +126,6 @@ export default function Settings() {
     setButtonClicked(true);
     const user_handle = userInfo?.handle;
     if (!user_handle) {
-      alert(`エラー: ユーザー情報を取得できませんでした！`);
       return;
     }
     const req: AccountCleanReqDto = {
@@ -142,12 +138,8 @@ export default function Settings() {
     });
     if (res.ok) {
       console.log('アカウントクリーニングが開始されました...');
-    } else if (res.status === 429) {
-      alert('リクエスト制限を超えました。しばらくしてから再度お試しください');
-      setButtonClicked(false);
-      return;
     } else {
-      alert('エラーが発生しました');
+      onApiError(res.status, res);
     }
     setTimeout(() => {
       setButtonClicked(false);
@@ -161,12 +153,8 @@ export default function Settings() {
     });
     if (res.ok) {
       console.log('ブロックリストのインポートが開始されました...');
-    } else if (res.status === 429) {
-      alert('リクエスト制限を超えました。しばらくしてから再度お試しください');
-      setButtonClicked(false);
-      return;
     } else {
-      alert(`エラーが発生しました ${await res.text()}`);
+      onApiError(res.status, res);
     }
     setTimeout(() => {
       setButtonClicked(false);

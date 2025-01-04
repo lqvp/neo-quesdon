@@ -9,6 +9,9 @@ import { MyQuestionEv } from '../_events';
 import { Logger } from '@/utils/logger/Logger';
 import { QuestionDeletedPayload } from '@/app/_dto/websocket-event/websocket-event.dto';
 import { MyProfileContext } from '@/app/main/layout';
+import { deleteQuestion } from '@/utils/questions/deleteQuestion';
+import { createBlock } from '@/utils/block/createBlock';
+import { onApiError } from '@/utils/api-error/onApiError';
 
 const fetchQuestions = async (): Promise<questionDto[] | null> => {
   const res = await fetch('/api/db/questions');
@@ -17,25 +20,15 @@ const fetchQuestions = async (): Promise<questionDto[] | null> => {
     if (res.status === 401) {
       return null;
     } else if (!res.ok) {
-      throw new Error(`自分の質問を取得するのに失敗しました!: ${await res.text()}`);
+      onApiError(res.status, res);
+      return null;
     } else {
       return await res.json();
     }
-  } catch (err) {
-    alert(err);
+  } catch {
     return null;
   }
 };
-
-async function deleteQuestion(id: number) {
-  const res = await fetch(`/api/db/questions/${id}`, {
-    method: 'DELETE',
-    cache: 'no-cache',
-  });
-  if (!res.ok) {
-    throw new Error(`質問の削除に失敗しました！ ${await res.text()}`);
-  }
-}
 
 export default function Questions() {
   const [questions, setQuestions] = useState<questionDto[] | null>();
@@ -43,6 +36,7 @@ export default function Questions() {
   const [id, setId] = useState<number>(0);
   const deleteQuestionModalRef = useRef<HTMLDialogElement>(null);
   const answeredQuestionModalRef = useRef<HTMLDialogElement>(null);
+  const createBlockModalRef = useRef<HTMLDialogElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onNewQuestionEvent = (ev: CustomEvent<questionDto>) => {
@@ -92,6 +86,7 @@ export default function Questions() {
                         setQuestions={setQuestions}
                         answerRef={answeredQuestionModalRef}
                         deleteRef={deleteQuestionModalRef}
+                        blockingRef={createBlockModalRef}
                         setIsLoading={setIsLoading}
                         defaultVisibility={profile?.defaultPostVisibility}
                       />
@@ -128,8 +123,17 @@ export default function Questions() {
         cancelButtonText={'キャンセル'}
         ref={deleteQuestionModalRef}
         onClick={() => {
-          deleteQuestion(id);
-          setQuestions((prevQuestions) => (prevQuestions ? [...prevQuestions.filter((prev) => prev.id !== id)] : null));
+          deleteQuestion(id, onApiError);
+        }}
+      />
+      <DialogModalTwoButton
+        title={'質問者ブロック'}
+        body={'本当に質問者をブロックしますか？ ブロックされた質問者は、もうあなたに質問できなくなります！'}
+        confirmButtonText={'OK'}
+        cancelButtonText={'キャンセル'}
+        ref={createBlockModalRef}
+        onClick={() => {
+          deleteQuestion(id, onApiError);
         }}
       />
     </div>

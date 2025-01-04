@@ -5,6 +5,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { RefObject, useEffect, useLayoutEffect, useRef } from 'react';
 import { CreateAnswerDto } from '@/app/_dto/answers/create-answer.dto';
 import { questionDto } from '@/app/_dto/questions/question.dto';
+import { onApiError } from '@/utils/api-error/onApiError';
 
 interface formValue {
   answer: string;
@@ -20,6 +21,7 @@ interface askProps {
   setId: React.Dispatch<React.SetStateAction<number>>;
   deleteRef: RefObject<HTMLDialogElement>;
   answerRef: RefObject<HTMLDialogElement>;
+  blockingRef: RefObject<HTMLDialogElement>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   defaultVisibility: 'public' | 'home' | 'followers' | undefined;
 }
@@ -31,6 +33,7 @@ export default function Question({
   setId,
   deleteRef,
   answerRef,
+  blockingRef,
   setIsLoading,
   defaultVisibility,
 }: askProps) {
@@ -98,9 +101,8 @@ export default function Question({
         visibility: e.visibility,
       };
       await postAnswer(req);
-    } catch (err) {
+    } catch {
       answerRef.current?.close();
-      alert(err);
     } finally {
       setIsLoading(false);
     }
@@ -172,6 +174,14 @@ export default function Question({
           >
             削除
           </span>
+          <span
+            className="text-red-800 font-bold ml-2 cursor-pointer"
+            onClick={() => {
+              setId(singleQuestion.id);
+              blockingRef.current?.showModal();
+            }}
+          >
+            質問者をブロック
         </div>
       </div>
       <div className="flex justify-end px-2 text-2xl chat chat-end">
@@ -242,6 +252,7 @@ async function postAnswer(req: CreateAnswerDto) {
     headers: { 'Content-type': 'application/json' },
   });
   if (!res.ok) {
-    throw new Error(`回答の作成に失敗しました！, ${await res.text()}`);
+    onApiError(res.status, res);
+    throw new Error();
   }
 }

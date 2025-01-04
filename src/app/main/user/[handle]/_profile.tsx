@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { getProxyUrl } from '@/utils/getProxyUrl/getProxyUrl';
+import { onApiError } from '@/utils/api-error/onApiError';
 
 type FormValue = {
   question: string;
@@ -21,14 +22,10 @@ type FormValue = {
 
 async function fetchProfile(handle: string) {
   const res = await fetch(`/api/db/fetch-profile/${handle}`);
-  try {
-    if (res && res.ok) {
-      return res.json() as unknown as userProfileDto;
-    } else {
-      throw new Error(`プロフィールを取得するのに失敗しました！ ${await res.text()}`);
-    }
-  } catch (err) {
-    alert(err);
+  if (res.ok) {
+    return res.json() as unknown as userProfileDto;
+  } else {
+    onApiError(res.status, res);
     return undefined;
   }
 }
@@ -124,7 +121,7 @@ export default function Profile() {
       body: JSON.stringify({ targetHandle: profileHandle }),
     });
     if (!res.ok) {
-      alert(await res.text());
+      onApiError(res.status, res);
       setIsLoading(false);
     }
     setIsUserBlocked(true);
@@ -140,7 +137,7 @@ export default function Profile() {
       body: JSON.stringify({ targetHandle: profileHandle }),
     });
     if (!res.ok) {
-      alert(await res.text());
+      onApiError(res.status, res);
       setIsLoading(false);
     }
     setIsUserBlocked(false);
@@ -213,6 +210,10 @@ export default function Profile() {
         const res = await mkQuestionCreateApi(req);
         if (res.ok) {
           setIsLoading(false);
+          setQuestionSendingDoneMessage({
+            title: '성공',
+            body: '질문했어요!',
+          });
         } else {
           setIsLoading(false);
           setQuestionSendingDoneMessage({ title: 'エラー', body: `質問を送信するのに失敗しました！ ${await res.text()}` });
@@ -235,7 +236,9 @@ export default function Profile() {
           method: 'POST',
           body: JSON.stringify({ targetHandle: profileHandle }),
         });
-        if (!res.ok) alert('ブロック状態を取得するのにエラーが発生しました！');
+        if (!res.ok) {
+          onApiError(res.status, res);
+        }
         const data = (await res.json()) as SearchBlockListResDto;
         setIsUserBlocked(data.isBlocked);
       })();

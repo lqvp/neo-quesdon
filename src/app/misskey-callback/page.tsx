@@ -9,7 +9,7 @@ import { misskeyCallbackTokenClaimPayload } from '@/app/_dto/misskey-callback/ca
 import { misskeyUserInfoPayload } from '@/app/_dto/misskey-callback/user-info.dto';
 import DialogModalOneButton from '@/app/_components/modalOneButton';
 
-const onErrorModalClick = () => {
+const onErrorModalClose = () => {
   window.location.replace('/');
 };
 export default function CallbackPage() {
@@ -69,15 +69,15 @@ export default function CallbackPage() {
   return (
     <>
       <div className="w-full h-[100vh] flex flex-col gap-2 justify-center items-center text-3xl">
-        <Image src={`/loading/${id}.gif`} width={64} height={64} alt="Login Loading" unoptimized />
+        <Image src={`/static/loading/${id}.gif`} width={64} height={64} alt="Login Loading" unoptimized />
         <span>ログインしています...</span>
       </div>
       <DialogModalOneButton
-        title={'오류'}
+        title={'エラー'}
         body={`${errMessage}`}
-        buttonText={'확인'}
+        buttonText={'ok'}
         ref={errModalRef}
-        onClick={onErrorModalClick}
+        onClose={onErrorModalClose}
       />
     </>
   );

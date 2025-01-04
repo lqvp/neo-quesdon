@@ -3,13 +3,14 @@
 import CollapseMenu from '@/app/_components/collapseMenu';
 import DialogModalLoadingOneButton from '@/app/_components/modalLoadingOneButton';
 import DialogModalTwoButton from '@/app/_components/modalTwoButton';
-import { Block, GetBlockListReqDto, GetBlockListResDto } from '@/app/_dto/blocking/blocking.dto';
+import { Block, DeleteBlockByIdDto, GetBlockListReqDto, GetBlockListResDto } from '@/app/_dto/blocking/blocking.dto';
+import { onApiError } from '@/utils/api-error/onApiError';
 import { useEffect, useRef, useState } from 'react';
 
 export default function BlockList() {
   const [untilId, setUntilId] = useState<string | null>(null);
   const [blockList, setBlockList] = useState<Block[]>([]);
-  const [unblockHandle, setUnblockHandle] = useState<string | null>(null);
+  const [unblockId, setUnblockId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [mounted, setMounted] = useState<HTMLTableRowElement | null>(null);
   const [loadingDoneModalText, setLoadingDoneModalText] = useState<{ title: string; body: string }>({
@@ -19,12 +20,13 @@ export default function BlockList() {
   const unblockConfirmModalRef = useRef<HTMLDialogElement>(null);
   const unblockSuccessModalRef = useRef<HTMLDialogElement>(null);
 
-  const handleUnBlock = async (handle: string) => {
+  const doUnBlock = async (id: string) => {
     setIsLoading(true);
     unblockSuccessModalRef.current?.showModal();
+    const data: DeleteBlockByIdDto = { targetId: id };
     const res = await fetch('/api/user/blocking/delete', {
       method: 'POST',
-      body: JSON.stringify({ targetHandle: handle }),
+      body: JSON.stringify(data),
     });
     if (!res.ok) {
       setIsLoading(false);
@@ -34,7 +36,7 @@ export default function BlockList() {
       });
       return;
     }
-    setBlockList((prevList) => (prevList ? [...prevList.filter((prev) => prev.targetHandle !== handle)] : []));
+    setBlockList((prevList) => (prevList ? [...prevList.filter((prev) => prev.id !== id)] : []));
     setIsLoading(false);
   };
 
@@ -48,10 +50,10 @@ export default function BlockList() {
         const blocklist = ((await res.json()) as GetBlockListResDto).blockList;
         return blocklist;
       } else {
+        onApiError(res.status, res);
         throw new Error('ブロックリストの取得中にエラーが発生しました！');
       }
     } catch (err) {
-      alert(err);
       throw err;
     }
   };
@@ -95,7 +97,7 @@ export default function BlockList() {
                   <button
                     className="btn btn-warning btn-sm w-full break-keep"
                     onClick={() => {
-                      setUnblockHandle(el.targetHandle);
+                      setUnblockId(el.id);
                       unblockConfirmModalRef.current?.showModal();
                     }}
                   >
@@ -134,7 +136,7 @@ export default function BlockList() {
         title={'ブロック解除'}
         body={'ブロックを解除しますか？'}
         confirmButtonText={'確認'}
-        onClick={() => handleUnBlock(unblockHandle!)}
+        onClick={() => doUnBlock(unblockId!)}
         cancelButtonText={'キャンセル'}
         ref={unblockConfirmModalRef}
       />
