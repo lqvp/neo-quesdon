@@ -11,11 +11,12 @@ import CollapseMenu from '@/app/_components/collapseMenu';
 import DialogModalTwoButton from '@/app/_components/modalTwoButton';
 import { AccountCleanReqDto } from '@/app/_dto/account-clean/account-clean.dto';
 import { FaLock, FaUserLargeSlash } from 'react-icons/fa6';
-import { MdDeleteSweep, MdOutlineCleaningServices } from 'react-icons/md';
+import { MdDeleteForever, MdDeleteSweep, MdOutlineCleaningServices } from 'react-icons/md';
 import { MyProfileContext } from '@/app/main/layout';
 import { MyProfileEv } from '@/app/main/_events';
 import { getProxyUrl } from '@/utils/getProxyUrl/getProxyUrl';
 import { onApiError } from '@/utils/api-error/onApiError';
+import { AccountDeleteReqDto } from '@/app/_dto/account-delete/account-delete.dto';
 
 export type FormValue = {
   stopAnonQuestion: boolean;
@@ -68,6 +69,7 @@ export default function Settings() {
   const [defaultFormValue, setDefaultFormValue] = useState<FormValue>();
   const logoutAllModalRef = useRef<HTMLDialogElement>(null);
   const accountCleanModalRef = useRef<HTMLDialogElement>(null);
+  const accountDeleteModalRef = useRef<HTMLDialogElement>(null);
   const importBlockModalRef = useRef<HTMLDialogElement>(null);
   const deleteAllQuestionsModalRef = useRef<HTMLDialogElement>(null);
   const deleteAllNotificationsModalRef = useRef<HTMLDialogElement>(null);
@@ -144,6 +146,32 @@ export default function Settings() {
     setTimeout(() => {
       setButtonClicked(false);
     }, 2000);
+  };
+
+  const onAccountDelete = async () => {
+    setButtonClicked(true);
+    setTimeout(() => {
+      setButtonClicked(false);
+    }, 2000);
+    const user_handle = userInfo?.handle;
+    if (!user_handle) {
+      return;
+    }
+    const req: AccountDeleteReqDto = {
+      handle: user_handle,
+    };
+    const res = await fetch('/api/user/account-delete', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    });
+    if (res.ok) {
+      localStorage.removeItem('user_handle');
+      localStorage.removeItem('last_token_refresh');
+      await fetch('/api/web/logout');
+      window.location.replace('/');
+    } else {
+      onApiError(res.status, res);
+    }
   };
 
   const onImportBlock = async () => {
@@ -324,7 +352,24 @@ export default function Settings() {
                             }}
                             className={`btn ${buttonClicked ? 'btn-disabled' : 'btn-warning'}`}
                           >
-                            {buttonClicked ? 'ちょっと待って...' : '通知ボックスを空にする'}
+                            {buttonClicked ? 'ちょっと待ってください...' : '通知ボックスを空にする'}
+                          </button>
+                          <Divider />
+                          <div className="font-normal text-xl py-3 flex items-center gap-2">
+                            <MdDeleteSweep size={24} />
+                            未回答の質問を空にする
+                          </div>
+                          <div className="font-thin px-4 py-2 break-keep">
+                          まだ回答していないすべての質問を削除します。削除された質問は元に戻せないので、ご注意ください。
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              deleteAllQuestionsModalRef.current?.showModal();
+                            }}
+                            className={`btn ${buttonClicked ? 'btn-disabled' : 'btn-warning'}`}
+                          >
+                            {buttonClicked ? 'ちょっと待ってください...' : 'すべての質問を削除'}
                           </button>
                           <Divider />
                           <div className="font-normal text-xl py-3 flex items-center gap-2">
@@ -360,22 +405,23 @@ export default function Settings() {
                           >
                             {buttonClicked ? '少々お待ちください...' : 'すべての回答を削除'}
                           </button>
+
                           <Divider />
                           <div className="font-normal text-xl py-3 flex items-center gap-2">
-                            <MdDeleteSweep size={24} />
-                            すべての質問を削除
+                            <MdDeleteForever size={24} />
+                            アカウント削除
                           </div>
                           <div className="font-thin px-4 py-2 break-keep">
-                            まだ回答していないすべての質問を削除します。削除された内容は元に戻せないので、ご注意ください。
+                          ネオクエスドンでこのアカウントを削除します。このアカウントで行ったすべての活動は削除されます。この操作は元に戻せないので、ご注意ください。
                           </div>
                           <button
                             type="button"
                             onClick={() => {
-                              deleteAllQuestionsModalRef.current?.showModal();
+                              accountDeleteModalRef.current?.showModal();
                             }}
                             className={`btn ${buttonClicked ? 'btn-disabled' : 'btn-error'}`}
                           >
-                            {buttonClicked ? '少々お待ちください...' : 'すべての質問を削除'}
+                            {buttonClicked ? '少々お待ちください...' : 'アカウント削除'}
                           </button>
                           <Divider />
                         </div>
@@ -411,12 +457,22 @@ export default function Settings() {
             onClick={onDeleteAllNotifications}
           />
           <DialogModalTwoButton
-            title={'警告'}
-            body={'未回答の質問をすべて削除しますか？ \nこの作業には時間がかかり、削除された質問は復元できません！'}
+            title={'注意'}
+            body={
+              'まだ回答していない質問をすべて削除しますか？\nこの作業には時間がかかり、削除された質問は復元できません！'
+            }
             confirmButtonText={'はい'}
             cancelButtonText={'いいえ'}
             ref={deleteAllQuestionsModalRef}
             onClick={onDeleteAllQuestions}
+          />
+          <DialogModalTwoButton
+            title={'注意'}
+            body={`${userInfo.instanceType} ブロックリストを取得しますか？\nこの作業が完了するまで少し時間がかかります！`}
+            confirmButtonText={'はい'}
+            cancelButtonText={'いいえ'}
+            ref={importBlockModalRef}
+            onClick={onImportBlock}
           />
           <DialogModalTwoButton
             title={'警告'}
@@ -427,12 +483,12 @@ export default function Settings() {
             onClick={onAccountClean}
           />
           <DialogModalTwoButton
-            title={'注意'}
-            body={`${userInfo.instanceType} からブロックリストをインポートしますか？ \nこの作業には少し時間がかかります！`}
+            title={'警告'}
+            body={'本当にアカウントを削除しますか...？\nこのアカウントのすべての情報が削除されます！'}
             confirmButtonText={'はい'}
             cancelButtonText={'いいえ'}
-            ref={importBlockModalRef}
-            onClick={onImportBlock}
+            ref={accountDeleteModalRef}
+            onClick={onAccountDelete}
           />
         </>
       )}
